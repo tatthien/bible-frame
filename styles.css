@@ -1,0 +1,20 @@
+.bible-frame {
+  border: var(--border-width) solid var(--background-modifier-border);
+  border-radius: 5px;
+}
+
+.bible-frame-scripture {
+  padding: 0.5rem 0.75rem;
+}
+
+.bible-frame-src {
+  border-top: var(--border-width) solid var(--background-modifier-border);
+  font-family: monospace;
+  white-space: pre;
+}
+
+.bible-frame-src pre,
+.bible-frame-src code {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
