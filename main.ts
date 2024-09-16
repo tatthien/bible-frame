@@ -1,17 +1,20 @@
-import { App, MarkdownRenderer, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { capitalize } from './src/helpers/capitalize';
+import { parseAddress } from './src/helpers/parseAddress';
+import { MarkdownRenderer, Plugin } from 'obsidian';
+import { BASE_API_URL } from 'src/constants';
+import { EditorSuggestVerse } from './src/EditorSuggestVerse';
+import { BibleFrameSettingTab } from './src/BibleFrameSettingTab';
 
-const BASE_API_URL = 'http://localhost:3000'
-
-interface MyPluginSettings {
+interface BibleFrameSettings {
   mySetting: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: BibleFrameSettings = {
   mySetting: 'default'
 }
 
 export default class BibleFramePlugin extends Plugin {
-  settings: MyPluginSettings;
+  settings: BibleFrameSettings;
 
   async onload() {
     try {
@@ -19,6 +22,12 @@ export default class BibleFramePlugin extends Plugin {
 
       this.registerMarkdownCodeBlockProcessor("bible", async (source, el, ctx) => {
         try {
+          const address = parseAddress(source)
+          if (!address) {
+            throw new Error(`"${source}" is not a valid address`)
+          }
+
+          const { book, chapter, verses } = address
 
           const rootEl = el.createEl('div', {
             cls: 'bible-frame',
@@ -28,15 +37,20 @@ export default class BibleFramePlugin extends Plugin {
           const json = await res.json()
 
           const scriptureEl = rootEl.createEl('div', { cls: 'bible-frame-scripture' })
-          scriptureEl.innerHTML = json.length ? json.map((verse: any) => `<sup>${verse.number}</sup> ${verse.content}`).join(' ') : 'No verses found. Double check the address and try again.'
+          scriptureEl.innerHTML = json.length
+            ? json.map((verse: any) => `<sup style="font-size: 0.5em; font-weight: 500">${verse.number}</sup> ${verse.content}`).join(' ')
+            : `<span style="font-size: 0.875em;">No verses found for the address <strong>"${capitalize(source)}"</strong></span>`
 
-          const srcEl = rootEl.createEl('div', { cls: 'bible-frame-src' })
-          MarkdownRenderer.render(this.app, `\`\`\`plain\n${source}\n\`\`\``, srcEl, ctx.sourcePath, this)
+          if (json.length) {
+            const srcEl = rootEl.createEl('div', { cls: 'bible-frame-src' })
+            MarkdownRenderer.render(this.app, `[[${book.toUpperCase()}-${chapter}#${verses[0]} | ${capitalize(source)}]]`, srcEl, ctx.sourcePath, this)
+          }
         } catch (err) {
           el.createEl('pre', { text: err })
         }
       });
 
+      this.registerEditorSuggest(new EditorSuggestVerse(this))
 
       // This adds a settings tab so the user can configure various aspects of the plugin
       this.addSettingTab(new BibleFrameSettingTab(this.app, this));
@@ -58,28 +72,3 @@ export default class BibleFramePlugin extends Plugin {
   }
 }
 
-class BibleFrameSettingTab extends PluginSettingTab {
-  plugin: BibleFramePlugin;
-
-  constructor(app: App, plugin: BibleFramePlugin) {
-    super(app, plugin);
-    this.plugin = plugin;
-  }
-
-  display(): void {
-    const { containerEl } = this;
-
-    containerEl.empty();
-
-    new Setting(containerEl)
-      .setName('Setting #1')
-      .setDesc('It\'s a secret')
-      .addText(text => text
-        .setPlaceholder('Enter your secret')
-        .setValue(this.plugin.settings.mySetting)
-        .onChange(async (value) => {
-          this.plugin.settings.mySetting = value;
-          await this.plugin.saveSettings();
-        }));
-  }
-}

@@ -5,16 +5,26 @@
 
 .bible-frame-scripture {
   padding: 0.5rem 0.75rem;
+  background: var(--color-base-05);
 }
 
 .bible-frame-src {
   border-top: var(--border-width) solid var(--background-modifier-border);
-  font-family: monospace;
-  white-space: pre;
+  padding: 0.25rem 0.75rem;
+}
+
+.bible-frame-src p {
+  margin: 0;
+  font-size: 0.75em;
 }
 
 .bible-frame-src pre,
 .bible-frame-src code {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+
+.bible-frame-src pre {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
 }
