@@ -1,18 +1,30 @@
-import { Editor, EditorPosition, EditorSuggest, EditorSuggestContext, EditorSuggestTriggerInfo, TFile } from "obsidian";
-import BibleFramePlugin from "../main";
-import { BASE_API_URL } from "./constants";
-import { addressMatch } from "./helpers/addressMatch";
-import { matchTirggerPrefix } from "./helpers/matchTriggerPrefix";
+import {
+  Editor,
+  EditorPosition,
+  EditorSuggest,
+  EditorSuggestContext,
+  EditorSuggestTriggerInfo,
+  TFile,
+} from 'obsidian'
+import BibleFramePlugin from '../main'
+import { BASE_API_URL } from './constants'
+import { addressMatch } from './helpers/addressMatch'
+import { matchTirggerPrefix } from './helpers/matchTriggerPrefix'
+import { SuggestVerse } from './SuggestVerse'
 
-export class EditorSuggestVerse extends EditorSuggest<any> {
+export class EditorSuggestVerse extends EditorSuggest<SuggestVerse> {
   plugin: BibleFramePlugin
 
   constructor(plugin: BibleFramePlugin) {
-    super(plugin.app);
+    super(plugin.app)
     this.plugin = plugin
   }
 
-  onTrigger(cursor: EditorPosition, editor: Editor, _: TFile | null): EditorSuggestTriggerInfo | null {
+  onTrigger(
+    cursor: EditorPosition,
+    editor: Editor,
+    _: TFile | null,
+  ): EditorSuggestTriggerInfo | null {
     const currentContent = editor.getLine(cursor.line).substring(0, cursor.ch)
 
     if (currentContent.length < 2) {
@@ -32,34 +44,40 @@ export class EditorSuggestVerse extends EditorSuggest<any> {
         end: cursor,
         start: {
           line: cursor.line,
-          ch: queryContent.lastIndexOf(match)
+          ch: queryContent.lastIndexOf(match),
         },
         query: match,
-      };
+      }
     }
 
     return null
   }
 
-  async getSuggestions(context: EditorSuggestContext): any[] | Promise<any[]> {
-    const res = await fetch(`${BASE_API_URL}/verses?address=${encodeURIComponent(context.query)}`)
+  async getSuggestions(context: EditorSuggestContext): Promise<SuggestVerse[]> {
+    const res = await fetch(
+      `${BASE_API_URL}/verses?address=${encodeURIComponent(context.query)}`,
+    )
     const json = await res.json()
 
     if (!json.length) return []
 
-    const html = json.map((verse: any) => `<sup>${verse.number}</sup> ${verse.content}`).join(' ')
+    const suggestVerse = new SuggestVerse(json, context.query)
 
-    return [html]
+    return [suggestVerse]
   }
 
-  renderSuggestion(value: any, el: HTMLElement): void {
+  renderSuggestion(value: SuggestVerse, el: HTMLElement): void {
     const wrapper = el.createDiv()
-    wrapper.innerHTML = value
+    wrapper.innerHTML = value.renderSuggestion()
   }
 
-  selectSuggestion(value: any, evt: MouseEvent | KeyboardEvent): void {
+  selectSuggestion(value: SuggestVerse, evt: MouseEvent | KeyboardEvent): void {
     if (this.context) {
-      this.context.editor.replaceRange(value, this.context.start, this.context.end)
+      this.context.editor.replaceRange(
+        value.callout(),
+        this.context.start,
+        this.context.end,
+      )
     }
   }
 }

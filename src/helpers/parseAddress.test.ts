@@ -1,4 +1,4 @@
-import { parseAddress } from "./parseAddress";
+import { parseAddress } from './parseAddress'
 
 describe('parseAddress', () => {
   it('should parse address', () => {
@@ -26,7 +26,7 @@ describe('parseAddress', () => {
           chapter: '1',
           verses: [1, 2, 3, 4, 5],
         },
-      }
+      },
     ]
 
     for (const input of inputs) {

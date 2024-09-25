@@ -1,4 +1,4 @@
-import { matchTirggerPrefix } from "./matchTriggerPrefix";
+import { matchTirggerPrefix } from './matchTriggerPrefix'
 
 describe('matchTriggerPrefix', () => {
   it('should match trigger prefix', () => {

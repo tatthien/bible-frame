@@ -1,4 +1,4 @@
-import { addressMatch } from "./addressMatch"
+import { addressMatch } from './addressMatch'
 
 describe('addressMatch', () => {
   it('should match address', () => {
@@ -17,8 +17,8 @@ describe('addressMatch', () => {
       },
       {
         address: '1Co 1:1',
-        expected: '1Co 1:1'
-      }
+        expected: '1Co 1:1',
+      },
     ]
 
     for (const input of inputs) {

@@ -1,4 +1,4 @@
-import { ADDRESS_REGEX } from "../constants"
+import { ADDRESS_REGEX } from '../constants'
 
 export const parseAddress = (address: string) => {
   const match = address.match(ADDRESS_REGEX)
@@ -9,7 +9,10 @@ export const parseAddress = (address: string) => {
 
     let verses = verseFrom ? [verseFrom] : []
     if (verseFrom && verseTo) {
-      verses = Array.from({ length: verseTo - verseFrom + 1 }, (_, i) => verseFrom + i)
+      verses = Array.from(
+        { length: verseTo - verseFrom + 1 },
+        (_, i) => verseFrom + i,
+      )
     }
 
     return {

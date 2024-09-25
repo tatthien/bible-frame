@@ -28,3 +28,7 @@
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
+
+.callout[data-callout="bible"] {
+  --callout-icon: book-plus;
+}
